@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#080c14" />
+  <title>Horse Sensor Log | Activity Data Collection</title>
+
+  <!-- Typography: High-legibility Monospace & Sans-Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ====================================================================
+         HEADER
+         ==================================================================== -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon" title="Horse Sensor Log Lab">
+          <!-- Stylized Equestrian / Sensor Glyph -->
+          <svg viewBox="0 0 24 24">
+            <path d="M19 3c-1.5 0-2.8.8-3.5 2C14.2 3.8 12.7 3 11 3 8.2 3 6 5.2 6 8c0 .4 0 .7.1 1.1L3.3 12.3c-.4.4-.4 1 0 1.4l1.4 1.4c.4.4 1 .4 1.4 0l1.9-1.9v4.8c0 1.7 1.3 3 3 3h4c.6 0 1-.4 1-1v-4h2v4c0 .6.4 1 1 1s1-.4 1-1v-7.2c1.7-.8 2.9-2.5 2.9-4.5 0-2.5-2-4.3-4-4.3zm-6 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">HORSE SENSOR LOG</h1>
+          <p class="brand-subtitle">ACCELEROMETER • GYROSCOPE • GPS</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Sensor Simulation Mode for Laptop/Desktop testing -->
+        <label class="simulation-toggle" id="simToggleWrap" title="Toggle simulated equine gait physics on devices without motion sensors">
+          <input type="checkbox" id="simCheckbox" class="sim-checkbox" />
+          <span>Demo Sim</span>
+        </label>
+
+        <!-- Status Pill -->
+        <div class="status-pill" id="statusPill">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="statusText">IDLE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ====================================================================
+         ACTIVITY SELECTION BUTTONS (Exact 4 Classes)
+         ==================================================================== -->
+    <section class="card" aria-label="Activity Label Selection">
+      <div class="card-header">
+        <h2 class="card-title">Select Activity Class</h2>
+        <span class="card-subtitle">One label required before recording</span>
+      </div>
+
+      <div class="activity-grid" id="activityGrid">
+        <!-- 1. Walking Natural -->
+        <button type="button" class="activity-btn" data-key="walking-natural" data-label="Walking Natural">
+          <div class="activity-badge">
+            <span>Class 01</span>
+            <span class="badge-dot">●</span>
+          </div>
+          <div class="activity-name">Walking Natural</div>
+          <div class="activity-id">walking-natural</div>
+        </button>
+
+        <!-- 2. Walking Rider -->
+        <button type="button" class="activity-btn" data-key="walking-rider" data-label="Walking Rider">
+          <div class="activity-badge">
+            <span>Class 02</span>
+            <span class="badge-dot">●</span>
+          </div>
+          <div class="activity-name">Walking Rider</div>
+          <div class="activity-id">walking-rider</div>
+        </button>
+
+        <!-- 3. Trotting Natural -->
+        <button type="button" class="activity-btn" data-key="trotting-natural" data-label="Trotting Natural">
+          <div class="activity-badge">
+            <span>Class 03</span>
+            <span class="badge-dot">●</span>
+          </div>
+          <div class="activity-name">Trotting Natural</div>
+          <div class="activity-id">trotting-natural</div>
+        </button>
+
+        <!-- 4. Trotting Rider -->
+        <button type="button" class="activity-btn" data-key="trotting-rider" data-label="Trotting Rider">
+          <div class="activity-badge">
+            <span>Class 04</span>
+            <span class="badge-dot">●</span>
+          </div>
+          <div class="activity-name">Trotting Rider</div>
+          <div class="activity-id">trotting-rider</div>
+        </button>
+      </div>
+
+      <!-- Current Label Display Area -->
+      <div class="current-label-card" id="currentLabelCard">
+        <span class="current-label-label">CURRENT LABEL</span>
+        <div class="current-label-value" id="currentLabelValue">
+          <span id="currentLabelText">No label selected</span>
+          <span class="internal-key-tag" id="internalKeyTag" style="display: none;"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         START / END RECORDING CONTROLS & METRICS
+         ==================================================================== -->
+    <section class="card" aria-label="Session Controls">
+      <!-- Two Main Buttons: START and END -->
+      <div class="controls-grid">
+        <button type="button" class="btn-ctrl btn-start" id="startBtn" disabled title="Select an activity label first">
+          <svg viewBox="0 0 24 24">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <span>START</span>
+        </button>
+
+        <button type="button" class="btn-ctrl btn-end" id="endBtn" disabled title="Recording is not active">
+          <svg viewBox="0 0 24 24">
+            <rect x="6" y="6" width="12" height="12"/>
+          </svg>
+          <span>END</span>
+        </button>
+      </div>
+
+      <!-- Visual Active Recording Status Bar -->
+      <div class="recording-banner" id="recordingBanner">
+        <div class="banner-left">
+          <div class="banner-indicator"></div>
+          <div>
+            <div class="banner-status-text" id="bannerStatusText">STANDBY</div>
+            <div class="banner-activity-text" id="bannerActivityText">Awaiting label &amp; start command</div>
+          </div>
+        </div>
+        <div class="sensor-status-tag" id="samplingRateTag">20 Hz Sampling</div>
+      </div>
+
+      <!-- Real-Time Metrics: Timer & Sample Counter -->
+      <div class="metrics-row">
+        <div class="metric-box timer-box">
+          <div class="timer-display" id="timerDisplay">00:00</div>
+          <div class="metric-label">RECORDING TIME</div>
+        </div>
+
+        <div class="metric-box counter-box">
+          <div class="sample-display" id="sampleCountDisplay">0 SAMPLES</div>
+          <div class="metric-label">TOTAL COLLECTED</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         LIVE SENSORS (ACCELEROMETER, GYROSCOPE, GPS)
+         ==================================================================== -->
+    <section class="card" aria-label="Live Sensor Readings">
+      <div class="card-header">
+        <h2 class="card-title">LIVE SENSORS</h2>
+        <span class="card-subtitle" id="sensorLiveIndicator">Monitoring device sensors</span>
+      </div>
+
+      <!-- Sensor Permission Request for iOS / Mobile -->
+      <button type="button" class="permission-btn" id="permissionBtn">
+        Enable Device Motion Sensors (iOS)
+      </button>
+
+      <div class="sensors-grid">
+        <!-- 1. ACCELEROMETER -->
+        <div class="sensor-box" id="accBox">
+          <div class="sensor-box-header">
+            <div class="sensor-box-title">
+              <span class="sensor-chip acc"></span>
+              <span>ACCELEROMETER (m/s²)</span>
+            </div>
+            <span class="sensor-status-tag" id="accStatus">ACTIVE</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: var(--color-acc);">X</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="accXFill" style="background: var(--color-acc);"></div>
+            </div>
+            <span class="axis-val" id="accXVal">0.000000</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: #38bdf8;">Y</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="accYFill" style="background: #38bdf8;"></div>
+            </div>
+            <span class="axis-val" id="accYVal">0.000000</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: #60a5fa;">Z</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="accZFill" style="background: #60a5fa;"></div>
+            </div>
+            <span class="axis-val" id="accZVal">0.000000</span>
+          </div>
+
+          <div class="sensor-warning" id="accWarning">
+            <span>⚠</span>
+            <span>Accelerometer unavailable. Enable Demo Sim or run on mobile device over HTTPS.</span>
+          </div>
+        </div>
+
+        <!-- 2. GYROSCOPE -->
+        <div class="sensor-box" id="gyrBox">
+          <div class="sensor-box-header">
+            <div class="sensor-box-title">
+              <span class="sensor-chip gyr"></span>
+              <span>GYROSCOPE (rad/s)</span>
+            </div>
+            <span class="sensor-status-tag" id="gyrStatus">ACTIVE</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: #a855f7;">X</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="gyrXFill" style="background: #a855f7;"></div>
+            </div>
+            <span class="axis-val" id="gyrXVal">0.000000</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: #c084fc;">Y</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="gyrYFill" style="background: #c084fc;"></div>
+            </div>
+            <span class="axis-val" id="gyrYVal">0.000000</span>
+          </div>
+
+          <div class="axis-row">
+            <span class="axis-lbl" style="color: #e879f9;">Z</span>
+            <div class="axis-track">
+              <div class="axis-fill" id="gyrZFill" style="background: #e879f9;"></div>
+            </div>
+            <span class="axis-val" id="gyrZVal">0.000000</span>
+          </div>
+
+          <div class="sensor-warning" id="gyrWarning">
+            <span>⚠</span>
+            <span>Gyroscope unavailable on this browser/hardware.</span>
+          </div>
+        </div>
+
+        <!-- 3. GPS LOCATION -->
+        <div class="sensor-box" id="gpsBox">
+          <div class="sensor-box-header">
+            <div class="sensor-box-title">
+              <span class="sensor-chip gps"></span>
+              <span>GPS LOCATION</span>
+            </div>
+            <span class="sensor-status-tag" id="gpsStatus">ACTIVE</span>
+          </div>
+
+          <div class="gps-grid">
+            <div class="gps-cell">
+              <div class="gps-cell-label">LATITUDE</div>
+              <div class="gps-cell-val" id="gpsLat">—</div>
+            </div>
+
+            <div class="gps-cell">
+              <div class="gps-cell-label">LONGITUDE</div>
+              <div class="gps-cell-val" id="gpsLon">—</div>
+            </div>
+
+            <div class="gps-cell">
+              <div class="gps-cell-label">ALTITUDE (m)</div>
+              <div class="gps-cell-val" id="gpsAlt">—</div>
+            </div>
+
+            <div class="gps-cell">
+              <div class="gps-cell-label">SPEED (m/s)</div>
+              <div class="gps-cell-val" id="gpsSpd">—</div>
+            </div>
+
+            <div class="gps-cell span-2">
+              <div class="gps-cell-label">ACCURACY (m)</div>
+              <div class="gps-cell-val" id="gpsAcc">—</div>
+            </div>
+          </div>
+
+          <div class="sensor-warning" id="gpsWarning">
+            <span>⚠</span>
+            <span>Location permission denied or GPS unavailable.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         RECORDED SESSIONS & EXPORT
+         ==================================================================== -->
+    <section class="card" aria-label="Session History">
+      <div class="card-header">
+        <h2 class="card-title">RECORDED SESSIONS (<span id="sessionCountBadge">0</span>)</h2>
+        <div class="sessions-actions">
+          <button type="button" class="btn-clear-all" id="clearAllBtn" title="Clear all recorded sessions">Clear</button>
+          <button type="button" class="btn-export-all" id="exportAllBtn" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            <span>EXPORT ALL</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="session-list" id="sessionList">
+        <div class="session-empty" id="sessionEmptyMessage">
+          No sessions recorded yet. Select an activity and press START to begin collecting data.
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.app-container -->
+
+  <!-- Toast Notification Feedback -->
+  <div id="toast" role="status" aria-live="polite">Session saved successfully</div>
+
+  <!-- Main JavaScript Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
